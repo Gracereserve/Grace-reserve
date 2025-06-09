@@ -519,188 +519,248 @@ function cargarReservas() {
             container.innerHTML = html;
         }
 
-        // Cancelar reserva
-        async function cancelarReserva(reservaId) {
-            if (!confirm('¿Estás segura de que quieres cancelar esta reserva?')) {
-                return;
-            }
+        // Cancelar reserva - MÉTODO JSONP
+function cancelarReserva(reservaId) {
+    if (!confirm('¿Estás segura de que quieres cancelar esta reserva?')) {
+        return;
+    }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'admin_panel',
-                        subaction: 'cancelar_reserva',
-                        reservaId: reservaId
-                    })
-                });
+    // MÉTODO JSONP (eliminar async/await/fetch)
+    const callbackName = 'cancelReservation_' + Date.now();
+    window[callbackName] = function(response) {
+        if (response.success) {
+            mostrarMensaje('success', 'Reserva cancelada exitosamente');
+            cargarReservas(); // Recargar lista
+        } else {
+            mostrarMensaje('error', 'Error: ' + response.error);
+        }
+        // Limpiar
+        delete window[callbackName];
+        const scriptToRemove = document.querySelector(`script[src*="${callbackName}"]`);
+        if (scriptToRemove) {
+            document.head.removeChild(scriptToRemove);
+        }
+    };
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarMensaje('success', 'Reserva cancelada exitosamente');
-                    cargarReservas(); // Recargar lista
-                } else {
-                    mostrarMensaje('error', 'Error: ' + result.error);
-                }
-            } catch (error) {
-                mostrarMensaje('error', 'Error de conexión');
-            }
+    const params = new URLSearchParams({
+        action: 'admin_panel',
+        subaction: 'cancelar_reserva',
+        reservaId: reservaId,
+        callback: callbackName
+    });
+
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    script.onerror = function() {
+        mostrarMensaje('error', 'Error de conexión');
+        delete window[callbackName];
+    };
+    
+    document.head.appendChild(script);
+}
+
+        // Cerrar día - MÉTODO JSONP
+function cerrarDia() {
+    const fecha = document.getElementById('closeDateInput').value;
+    const motivo = document.getElementById('closeReason').value;
+    
+    if (!fecha) {
+        alert('Por favor selecciona una fecha');
+        return;
+    }
+
+    // MÉTODO JSONP (eliminar async/await/fetch)
+    const callbackName = 'closeDay_' + Date.now();
+    window[callbackName] = function(response) {
+        if (response.success) {
+            mostrarMensajeCalendario('success', `Día ${fecha} cerrado exitosamente`);
+            document.getElementById('closeDateInput').value = '';
+            document.getElementById('closeReason').value = '';
+        } else {
+            mostrarMensajeCalendario('error', 'Error: ' + response.error);
+        }
+        // Limpiar
+        delete window[callbackName];
+        const scriptToRemove = document.querySelector(`script[src*="${callbackName}"]`);
+        if (scriptToRemove) {
+            document.head.removeChild(scriptToRemove);
+        }
+    };
+
+    const params = new URLSearchParams({
+        action: 'admin_panel',
+        subaction: 'cerrar_dia',
+        fecha: fecha,
+        motivo: motivo || 'Cerrado por administrador',
+        callback: callbackName
+    });
+
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    script.onerror = function() {
+        mostrarMensajeCalendario('error', 'Error de conexión');
+        delete window[callbackName];
+    };
+    
+    document.head.appendChild(script);
+}
+
+        // Abrir día - MÉTODO JSONP
+function abrirDia() {
+    const fecha = document.getElementById('openDateInput').value;
+    
+    if (!fecha) {
+        alert('Por favor selecciona una fecha');
+        return;
+    }
+
+    // MÉTODO JSONP (eliminar async/await/fetch)
+    const callbackName = 'openDay_' + Date.now();
+    window[callbackName] = function(response) {
+        if (response.success) {
+            mostrarMensajeCalendario('success', `Día ${fecha} abierto exitosamente`);
+            document.getElementById('openDateInput').value = '';
+        } else {
+            mostrarMensajeCalendario('error', 'Error: ' + response.error);
+        }
+        // Limpiar
+        delete window[callbackName];
+        const scriptToRemove = document.querySelector(`script[src*="${callbackName}"]`);
+        if (scriptToRemove) {
+            document.head.removeChild(scriptToRemove);
+        }
+    };
+
+    const params = new URLSearchParams({
+        action: 'admin_panel',
+        subaction: 'abrir_dia',
+        fecha: fecha,
+        callback: callbackName
+    });
+
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    script.onerror = function() {
+        mostrarMensajeCalendario('error', 'Error de conexión');
+        delete window[callbackName];
+    };
+    
+    document.head.appendChild(script);
+}
+
+       // Configurar vacaciones - MÉTODO JSONP
+function configurarVacaciones() {
+    const fechaInicio = document.getElementById('vacationStart').value;
+    const fechaFin = document.getElementById('vacationEnd').value;
+    
+    if (!fechaInicio || !fechaFin) {
+        alert('Por favor selecciona fechas de inicio y fin');
+        return;
+    }
+    
+    if (fechaInicio > fechaFin) {
+        alert('La fecha de inicio debe ser anterior a la fecha de fin');
+        return;
+    }
+
+    // Generar todas las fechas en el rango
+    const startDate = new Date(fechaInicio);
+    const endDate = new Date(fechaFin);
+    const fechas = [];
+
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        fechas.push(d.toISOString().split('T')[0]);
+    }
+
+    // MÉTODO JSONP RECURSIVO para múltiples fechas
+    let fechaIndex = 0;
+    
+    function cerrarProximaFecha() {
+        if (fechaIndex >= fechas.length) {
+            // Todas las fechas procesadas
+            mostrarMensajeCalendario('success', `Vacaciones configuradas del ${fechaInicio} al ${fechaFin}`);
+            document.getElementById('vacationStart').value = '';
+            document.getElementById('vacationEnd').value = '';
+            return;
         }
 
-        // Cerrar día
-        async function cerrarDia() {
-            const fecha = document.getElementById('closeDateInput').value;
-            const motivo = document.getElementById('closeReason').value;
-            
-            if (!fecha) {
-                alert('Por favor selecciona una fecha');
-                return;
+        const fecha = fechas[fechaIndex];
+        const callbackName = 'vacation_' + Date.now() + '_' + fechaIndex;
+        
+        window[callbackName] = function(response) {
+            // Limpiar
+            delete window[callbackName];
+            const scriptToRemove = document.querySelector(`script[src*="${callbackName}"]`);
+            if (scriptToRemove) {
+                document.head.removeChild(scriptToRemove);
             }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'admin_panel',
-                        subaction: 'cerrar_dia',
-                        fecha: fecha,
-                        motivo: motivo || 'Cerrado por administrador'
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarMensajeCalendario('success', `Día ${fecha} cerrado exitosamente`);
-                    document.getElementById('closeDateInput').value = '';
-                    document.getElementById('closeReason').value = '';
-                } else {
-                    mostrarMensajeCalendario('error', 'Error: ' + result.error);
-                }
-            } catch (error) {
-                mostrarMensajeCalendario('error', 'Error de conexión');
+            if (response.success) {
+                fechaIndex++;
+                // Procesar siguiente fecha
+                setTimeout(cerrarProximaFecha, 100); // Pequeña pausa entre llamadas
+            } else {
+                mostrarMensajeCalendario('error', `Error configurando vacaciones en fecha ${fecha}`);
             }
+        };
+
+        const params = new URLSearchParams({
+            action: 'admin_panel',
+            subaction: 'cerrar_dia',
+            fecha: fecha,
+            motivo: 'Vacaciones',
+            callback: callbackName
+        });
+
+        const script = document.createElement('script');
+        script.src = `${API_URL}?${params.toString()}`;
+        script.onerror = function() {
+            mostrarMensajeCalendario('error', 'Error de conexión configurando vacaciones');
+            delete window[callbackName];
+        };
+        
+        document.head.appendChild(script);
+    }
+
+    // Iniciar el proceso
+    cerrarProximaFecha();
+}
+        // Cargar estadísticas - MÉTODO JSONP
+function cargarEstadisticas() {
+    const container = document.getElementById('statsContainer');
+    container.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
+    
+    // MÉTODO JSONP (eliminar async/await/fetch)
+    const callbackName = 'loadStats_' + Date.now();
+    window[callbackName] = function(response) {
+        if (response.success) {
+            mostrarEstadisticas(response.reservas);
+        } else {
+            container.innerHTML = `<div class="error">Error: ${response.error}</div>`;
         }
-
-        // Abrir día
-        async function abrirDia() {
-            const fecha = document.getElementById('openDateInput').value;
-            
-            if (!fecha) {
-                alert('Por favor selecciona una fecha');
-                return;
-            }
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'admin_panel',
-                        subaction: 'abrir_dia',
-                        fecha: fecha
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarMensajeCalendario('success', `Día ${fecha} abierto exitosamente`);
-                    document.getElementById('openDateInput').value = '';
-                } else {
-                    mostrarMensajeCalendario('error', 'Error: ' + result.error);
-                }
-            } catch (error) {
-                mostrarMensajeCalendario('error', 'Error de conexión');
-            }
+        // Limpiar
+        delete window[callbackName];
+        const scriptToRemove = document.querySelector(`script[src*="${callbackName}"]`);
+        if (scriptToRemove) {
+            document.head.removeChild(scriptToRemove);
         }
+    };
 
-        // Configurar vacaciones
-        async function configurarVacaciones() {
-            const fechaInicio = document.getElementById('vacationStart').value;
-            const fechaFin = document.getElementById('vacationEnd').value;
-            
-            if (!fechaInicio || !fechaFin) {
-                alert('Por favor selecciona fechas de inicio y fin');
-                return;
-            }
+    const params = new URLSearchParams({
+        action: 'admin_panel',
+        subaction: 'obtener_reservas',
+        callback: callbackName
+    });
 
-            if (fechaInicio > fechaFin) {
-                alert('La fecha de inicio debe ser anterior a la fecha de fin');
-                return;
-            }
-
-            // Generar todas las fechas en el rango
-            const startDate = new Date(fechaInicio);
-            const endDate = new Date(fechaFin);
-            const fechas = [];
-
-            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                fechas.push(d.toISOString().split('T')[0]);
-            }
-
-            try {
-                // Cerrar cada día del período
-                for (const fecha of fechas) {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            action: 'admin_panel',
-                            subaction: 'cerrar_dia',
-                            fecha: fecha,
-                            motivo: 'Vacaciones'
-                        })
-                    });
-                }
-
-                mostrarMensajeCalendario('success', `Vacaciones configuradas del ${fechaInicio} al ${fechaFin}`);
-                document.getElementById('vacationStart').value = '';
-                document.getElementById('vacationEnd').value = '';
-            } catch (error) {
-                mostrarMensajeCalendario('error', 'Error configurando vacaciones');
-            }
-        }
-
-        // Cargar estadísticas
-        async function cargarEstadisticas() {
-            const container = document.getElementById('statsContainer');
-            container.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'admin_panel',
-                        subaction: 'obtener_reservas'
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarEstadisticas(result.reservas);
-                } else {
-                    container.innerHTML = `<div class="error">Error: ${result.error}</div>`;
-                }
-            } catch (error) {
-                container.innerHTML = '<div class="error">Error de conexión</div>';
-            }
-        }
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    script.onerror = function() {
+        container.innerHTML = '<div class="error">Error de conexión</div>';
+        delete window[callbackName];
+    };
+    
+    document.head.appendChild(script);
+}
 
         function mostrarEstadisticas(reservas) {
             const container = document.getElementById('statsContainer');
@@ -767,12 +827,35 @@ function cargarReservas() {
             }, 5000);
         }
 
-        function limpiarDatosAntiguos() {
-            if (confirm('¿Estás segura de que quieres eliminar reservas antigas (más de 30 días)?')) {
-                // Implementar llamada a la API
-                alert('Función de limpieza ejecutada');
+    function limpiarDatosAntiguos() {
+    if (confirm('¿Estás segura de que quieres eliminar reservas antiguas (más de 30 días)?')) {
+        
+        const callbackName = 'cleanData_' + Date.now();
+        window[callbackName] = function(response) {
+            if (response.success) {
+                mostrarMensajeCalendario('success', 'Datos antiguos eliminados exitosamente');
+                cargarReservas(); // Recargar lista
+            } else {
+                mostrarMensajeCalendario('error', 'Error: ' + response.error);
             }
-        }
+            delete window[callbackName];
+            const scriptToRemove = document.querySelector(`script[src*="${callbackName}"]`);
+            if (scriptToRemove) {
+                document.head.removeChild(scriptToRemove);
+            }
+        };
+
+        const params = new URLSearchParams({
+            action: 'admin_panel',
+            subaction: 'limpiar_datos',
+            callback: callbackName
+        });
+
+        const script = document.createElement('script');
+        script.src = `${API_URL}?${params.toString()}`;
+        document.head.appendChild(script);
+    }
+}
     </script>
 </body>
 </html>
