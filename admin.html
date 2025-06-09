@@ -438,40 +438,44 @@
             }
         }
 
-        // Cargar reservas
-        async function cargarReservas() {
-            const container = document.getElementById('reservationsContainer');
-            const fecha = document.getElementById('selectedDate').value;
-            
-            container.innerHTML = '<div class="loading">Cargando reservas...</div>';
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'admin_panel',
-                        subaction: 'obtener_reservas',
-                        fecha: fecha
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarReservas(result.reservas);
-                    currentReservations = result.reservas;
-                } else {
-                    container.innerHTML = `<div class="error">Error: ${result.error}</div>`;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                container.innerHTML = '<div class="error">Error de conexión</div>';
-            }
+        // Cargar reservas - MÉTODO JSONP PROBADO
+function cargarReservas() {
+    const container = document.getElementById('reservationsContainer');
+    const fecha = document.getElementById('selectedDate').value;
+    
+    container.innerHTML = '<div class="loading">Cargando reservas...</div>';
+    
+    // MÉTODO JSONP (sin async/await, sin fetch)
+    const callbackName = 'loadReservations_' + Date.now();
+    window[callbackName] = function(response) {
+        if (response.success) {
+            mostrarReservas(response.reservas);
+            currentReservations = response.reservas;
+        } else {
+            container.innerHTML = `<div class="error">Error: ${response.error}</div>`;
         }
-
+        // Limpiar callback
+        delete window[callbackName];
+        // Remover script tag
+        document.head.removeChild(document.querySelector(`script[src*="${callbackName}"]`));
+    };
+    
+    const params = new URLSearchParams({
+        action: 'admin_panel',
+        subaction: 'obtener_reservas',
+        fecha: fecha,
+        callback: callbackName
+    });
+    
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    script.onerror = function() {
+        container.innerHTML = '<div class="error">Error de conexión</div>';
+        delete window[callbackName];
+    };
+    
+    document.head.appendChild(script);
+}
         function mostrarReservas(reservas) {
             const container = document.getElementById('reservationsContainer');
             
