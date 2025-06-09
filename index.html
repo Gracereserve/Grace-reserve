@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservas - Salón de Uñas</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>Grace Reserve - Sistema de Reservas</title>
     <style>
         * {
             margin: 0;
@@ -14,206 +13,161 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #8B7355 0%, #6B8E23 100%);
+            background: linear-gradient(135deg, #8FBC8F 0%, #556B2F 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
-            background: #FEFEFE;
+            background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #8B7355, #6B8E23);
+            background: linear-gradient(135deg, #D2B48C 0%, #8B4513 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5em;
+            font-size: 2.5rem;
             margin-bottom: 10px;
             font-weight: 300;
         }
 
         .header p {
+            font-size: 1.1rem;
             opacity: 0.9;
-            font-size: 1.1em;
         }
 
         .form-container {
             padding: 40px;
         }
 
-        .step {
-            margin-bottom: 40px;
-            opacity: 0.3;
-            transition: opacity 0.3s;
-        }
-
-        .step.active {
-            opacity: 1;
-        }
-
-        .step-number {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            background: #8B7355;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 35px;
-            font-weight: bold;
-            margin-right: 15px;
-        }
-
-        .step-title {
-            color: #6B8E23;
-            font-size: 1.4em;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .login-section {
-            text-align: center;
-            padding: 30px;
-            background: #F5F5DC;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .user-info {
-            background: #F5F5DC;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .user-info.show {
-            display: block;
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
             font-weight: 600;
             color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        input, select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #F5F5DC;
+        input, select, textarea {
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
             border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #6B8E23;
-        }
-
-        .service-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .service-card {
-            border: 2px solid #F5F5DC;
-            border-radius: 15px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
+            border-color: #8FBC8F;
             background: white;
-        }
-
-        .service-card:hover {
-            border-color: #6B8E23;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(143, 188, 143, 0.2);
         }
 
-        .service-card.selected {
-            border-color: #6B8E23;
-            background: #F5F5DC;
+        .whatsapp-group {
+            position: relative;
         }
 
-        .service-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
+        .whatsapp-input {
+            padding-left: 50px;
         }
 
-        .service-duration {
+        .whatsapp-prefix {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #666;
-            font-size: 0.9em;
+            font-weight: 500;
         }
 
-        .time-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .time-slot {
-            border: 2px solid #F5F5DC;
+        .verification-section {
+            background: #f8f9fa;
             border-radius: 10px;
-            padding: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px dashed #dee2e6;
+            display: none;
+        }
+
+        .verification-section.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .code-input {
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
             background: white;
-        }
-
-        .time-slot:hover {
-            border-color: #6B8E23;
-            background: #F5F5DC;
-        }
-
-        .time-slot.selected {
-            border-color: #6B8E23;
-            background: #6B8E23;
-            color: white;
-        }
-
-        .time-slot.unavailable {
-            background: #f0f0f0;
-            color: #999;
-            cursor: not-allowed;
-            border-color: #ddd;
+            border: 2px solid #8FBC8F;
         }
 
         .btn {
-            background: linear-gradient(135deg, #8B7355, #6B8E23);
-            color: white;
+            padding: 12px 25px;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8FBC8F 0%, #556B2F 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
         .btn:disabled {
@@ -222,70 +176,84 @@
             transform: none;
         }
 
-        .confirmation {
-            background: #F5F5DC;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            display: none;
+        .submit-btn {
+            background: linear-gradient(135deg, #D2B48C 0%, #8B4513 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
         }
 
-        .confirmation.show {
-            display: block;
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(210, 180, 140, 0.4);
         }
 
-        .confirmation h3 {
-            color: #6B8E23;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .reservation-details {
-            background: white;
+        .status-message {
+            padding: 15px;
             border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .loading {
-            display: none;
+            margin-top: 20px;
             text-align: center;
-            padding: 20px;
+            font-weight: 600;
+            display: none;
         }
 
-        .loading.show {
-            display: block;
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .error {
-            background: #ffe6e6;
-            color: #d00;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
-        .error.show {
-            display: block;
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .whatsapp-info {
+            background: #e7f5e7;
+            border: 1px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #155724;
+        }
+
+        .countdown {
+            font-weight: bold;
+            color: #8FBC8F;
         }
 
         @media (max-width: 768px) {
-            .container {
-                margin: 10px;
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
             }
             
             .form-container {
                 padding: 20px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
             }
         }
     </style>
@@ -293,400 +261,491 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>💅 Reserva tu Cita</h1>
-            <p>Sistema de reservas profesional</p>
+            <h1>💅 Grace Reserve</h1>
+            <p>Sistema de reservas con notificaciones WhatsApp</p>
         </div>
-
+        
         <div class="form-container">
-            <!-- Paso 1: Autenticación -->
-            <div class="step active" id="step1">
-                <div class="step-title">
-                    <span class="step-number">1</span>
-                    Inicia Sesión con Google
-                </div>
-                
-                <div class="login-section">
-                    <h3 style="margin-bottom: 15px; color: #6B8E23;">Para continuar, inicia sesión con tu cuenta de Google</h3>
-                    <p style="margin-bottom: 20px; color: #666;">Esto nos permite agregar la cita automáticamente a tu calendario y enviarte recordatorios</p>
-                    
-                   
-                    <div id="g_id_onload"
-                         data-client_id="218691525534-vefqfh7v58r0b4npq3mk08d69ol6ogjr.apps.googleusercontent.com"
-                         data-callback="handleCredentialResponse">
+            <div class="whatsapp-info">
+                <h3>📱 Notificaciones por WhatsApp</h3>
+                <p>Recibirás confirmación y recordatorios automáticos en tu WhatsApp.</p>
+            </div>
+
+            <form id="appointmentForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">👤 Nombre *</label>
+                        <input type="text" id="firstName" name="firstName" required>
                     </div>
-                    <div class="g_id_signin" data-type="standard"></div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">👤 Apellido *</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">📧 Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group whatsapp-group">
+                        <label for="whatsapp">📱 WhatsApp * <small>(Ej: 0987654321)</small></label>
+                        <div class="whatsapp-prefix">+593</div>
+                        <input type="tel" id="whatsapp" name="whatsapp" class="whatsapp-input" required 
+                               placeholder="987654321" pattern="[0-9]{9,10}" 
+                               title="Ingresa tu número sin +593, solo 9-10 dígitos">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointmentDate">📅 Fecha de la Cita *</label>
+                        <input type="date" id="appointmentDate" name="appointmentDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointmentTime">🕐 Hora de la Cita *</label>
+                        <input type="time" id="appointmentTime" name="appointmentTime" required>
+                    </div>
+                    
+                   <div class="form-group full-width">
+                        <label for="service">💅 Servicio *</label>
+                        <select id="service" name="service" required>
+                        <option value="">Seleccionar servicio...</option>
+                        <option value="Manicure Permanente" data-duration="60">1. Manicure Permanente (1 hora)</option>
+                        <option value="Manicure Tradicional" data-duration="60">2. Manicure Tradicional (1 hora)</option>
+                        <option value="Esculpidas" data-duration="180">3. Esculpidas (3 horas)</option>
+                        <option value="Relleno Acrílico" data-duration="120">4. Relleno Acrílico (2 horas)</option>
+                        <option value="Relleno Poligel" data-duration="120">5. Relleno Poligel (2 horas)</option>
+                        <option value="Pedicure con Esmalte Permanente" data-duration="60">6. Pedicure con Esmalte Permanente (1 hora)</option>
+                        <option value="Pedicure con Esmalte Tradicional" data-duration="60">7. Pedicure con Esmalte Tradicional (1 hora)</option>
+                        <option value="Barrido de Acrílico" data-duration="120">8. Barrido de Acrílico (2 horas)</option>
+                        <option value="Keratina" data-duration="150">9. Keratina (2 horas y media)</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="user-info" id="userInfo">
-                    <h4 style="color: #6B8E23; margin-bottom: 10px;">✅ Sesión iniciada</h4>
-                    <div id="userDetails"></div>
-                    <button type="button" class="btn" onclick="nextStep(2)" style="margin-top: 15px;">Continuar</button>
-                </div>
-            </div>
-
-            <!-- Paso 2: Información Personal -->
-            <div class="step" id="step2">
-                <div class="step-title">
-                    <span class="step-number">2</span>
-                    Información Personal
+                <!-- Sección de verificación por WhatsApp -->
+                <div id="verificationSection" class="verification-section">
+                    <h3>📲 Verificación por WhatsApp</h3>
+                    <p>Enviamos un código de 4 dígitos a tu WhatsApp +593<span id="phoneDisplay"></span></p>
+                    
+                    <div class="form-group" style="margin: 15px 0;">
+                        <label for="verificationCode">Código de verificación *</label>
+                        <input type="text" id="verificationCode" name="verificationCode" 
+                               class="code-input" maxlength="4" placeholder="0000">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="button" id="verifyCodeBtn" class="btn btn-success">
+                            ✅ Verificar Código
+                        </button>
+                        <button type="button" id="resendCodeBtn" class="btn btn-secondary">
+                            🔄 Reenviar Código
+                        </button>
+                        <span id="countdown" class="countdown"></span>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="nombre">Nombre *</label>
-                    <input type="text" id="nombre" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="apellido">Apellido *</label>
-                    <input type="text" id="apellido" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="telefono">Teléfono *</label>
-                    <input type="tel" id="telefono" required placeholder="Ej: +593 99 123 4567">
-                </div>
-
-                <button type="button" class="btn" onclick="nextStep(3)">Continuar</button>
-            </div>
-
-            <!-- Paso 3: Selección de Servicio -->
-            <div class="step" id="step3">
-                <div class="step-title">
-                    <span class="step-number">3</span>
-                    Selecciona tu Servicio
-                </div>
-                
-                <div class="service-grid" id="serviceGrid">
-                    <!-- Los servicios se cargarán dinámicamente -->
-                </div>
-
-                <button type="button" class="btn" onclick="nextStep(4)" id="serviceBtn" disabled>Continuar</button>
-            </div>
-
-            <!-- Paso 4: Fecha y Hora -->
-            <div class="step" id="step4">
-                <div class="step-title">
-                    <span class="step-number">4</span>
-                    Fecha y Hora
-                </div>
-                
-                <div class="form-group">
-                    <label for="fecha">Fecha *</label>
-                    <input type="date" id="fecha" required>
-                </div>
-                
-                <div id="timeSlots" class="time-grid">
-                    <!-- Los horarios se cargarán dinámicamente -->
-                </div>
-
-                <button type="button" class="btn" onclick="confirmReservation()" id="confirmBtn" disabled>Confirmar Reserva</button>
-            </div>
-
-            <!-- Confirmación -->
-            <div class="confirmation" id="confirmation">
-                <h3>🎉 ¡Reserva Confirmada!</h3>
-                <div class="reservation-details" id="reservationDetails">
-                    <!-- Detalles de la reserva -->
-                </div>
-                <p>✅ <strong>Cita agregada a tu Google Calendar</strong></p>
-                <p>📱 <strong>Recibirás una alerta 1 hora antes</strong></p>
-                <p>📧 <strong>Te hemos enviado un email de confirmación</strong></p>
-                
-                <button type="button" class="btn" onclick="newReservation()" style="margin-top: 20px;">
-                    Nueva Reserva
+                <button type="button" id="sendCodeBtn" class="btn btn-primary" style="width: 100%; margin: 20px 0;">
+                    📱 Enviar Código de Verificación
                 </button>
-            </div>
-
-            <!-- Loading -->
-            <div class="loading" id="loading">
-                <p>Procesando tu reserva...</p>
-            </div>
-
-            <!-- Error -->
-            <div class="error" id="error">
-                <p id="errorMessage"></p>
-            </div>
+                
+                <button type="submit" id="submitBtn" class="submit-btn" disabled>
+                    💅 Confirmar Reserva
+                </button>
+            </form>
+            
+            <div id="statusMessage" class="status-message"></div>
         </div>
     </div>
 
     <script>
         // Configuración
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvyg-DXzdHw3VHq7rp4wlwOBMXLWrWKQnNrT0ovcm3ITfW6VHiamIlKkkfKmiupiZA/exec';
-        
-        // Variables globales
-        let currentUser = null;
-        let selectedService = null;
-        let selectedDate = null;
-        let selectedTime = null;
-        
-        // Servicios disponibles
-        const services = [
-            {id: 1, name: 'Manicure permanente', duration: 60, price: 15},
-            {id: 2, name: 'Manicure tradicional', duration: 60, price: 10},
-            {id: 3, name: 'Esculpidas', duration: 180, price: 35},
-            {id: 4, name: 'Relleno acrílico', duration: 120, price: 25},
-            {id: 5, name: 'Relleno poligel', duration: 120, price: 30},
-            {id: 6, name: 'Pedicure con esmalte permanente', duration: 60, price: 18},
-            {id: 7, name: 'Pedicure con esmalte tradicional', duration: 60, price: 12},
-            {id: 8, name: 'Barrido de acrílico', duration: 120, price: 20},
-            {id: 9, name: 'Keratina', duration: 150, price: 40}
-        ];
+        const CONFIG = {
+            TWILIO_ACCOUNT_SID: 'TU_ACCOUNT_SID', // Cambiar por tu Account SID
+            TWILIO_AUTH_TOKEN: 'TU_AUTH_TOKEN',   // Cambiar por tu Auth Token
+            TWILIO_PHONE_NUMBER: '+14155238886',  // Número de WhatsApp de Twilio
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby6AT2VNuLHhmdlLYHK8lgq3_o6f9vvQDpxMsbG75x7eM_nwjbh-W2grqpMYFhCo08j-A/exec' // Tu Google Apps Script URL
+        };
 
-        // Google Sign-In
-        function handleCredentialResponse(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            
-            currentUser = {
-                email: responsePayload.email,
-                name: responsePayload.name,
-                picture: responsePayload.picture
-            };
-            
-            document.getElementById('userDetails').innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="${currentUser.picture}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
-                    <div>
-                        <strong>${currentUser.name}</strong><br>
-                        <small>${currentUser.email}</small>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('userInfo').classList.add('show');
-            
-            // Pre-llenar los campos si es posible
-            const nameParts = currentUser.name.split(' ');
-            document.getElementById('nombre').value = nameParts[0] || '';
-            document.getElementById('apellido').value = nameParts.slice(1).join(' ') || '';
+        // Configuración de horarios y servicios
+        const BUSINESS_HOURS = {
+            1: { morning: { start: '09:00', end: '12:00' }, afternoon: { start: '14:00', end: '21:00' } }, // Lunes
+            2: { morning: { start: '09:00', end: '12:00' }, afternoon: { start: '14:00', end: '19:00' } }, // Martes
+            3: { morning: { start: '09:00', end: '12:00' }, afternoon: { start: '14:00', end: '21:00' } }, // Miércoles
+            4: { morning: { start: '09:00', end: '12:00' }, afternoon: { start: '14:00', end: '21:00' } }, // Jueves
+            5: { morning: { start: '09:00', end: '12:00' }, afternoon: { start: '14:00', end: '19:00' } }, // Viernes
+            6: { morning: { start: '09:00', end: '12:00' }, afternoon: { start: '14:00', end: '17:00' } }, // Sábado
+            0: null // Domingo cerrado
+        };
+
+        let existingAppointments = []; // Se llenará desde Google Sheets
+        let verificationCode = '';
+        let isPhoneVerified = false;
+        let countdownTimer = null;
+
+        // Elementos DOM
+        const form = document.getElementById('appointmentForm');
+        const whatsappInput = document.getElementById('whatsapp');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const verificationSection = document.getElementById('verificationSection');
+        const verificationCodeInput = document.getElementById('verificationCode');
+        const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+        const resendCodeBtn = document.getElementById('resendCodeBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const phoneDisplay = document.getElementById('phoneDisplay');
+        const countdown = document.getElementById('countdown');
+        const serviceSelect = document.getElementById('service');
+        const dateInput = document.getElementById('appointmentDate');
+        const timeSelect = document.getElementById('appointmentTime');
+
+        // Funciones para manejo de disponibilidad
+        function isBusinessDay(date) {
+            const dayOfWeek = new Date(date).getDay();
+            return BUSINESS_HOURS[dayOfWeek] !== null;
         }
 
-        function decodeJwtResponse(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        // Navegación entre pasos
-        function nextStep(step) {
-            // Validar paso actual
-            if (step === 2 && !currentUser) {
-                showError('Debes iniciar sesión para continuar');
-                return;
-            }
+        function getAvailableTimeSlots(selectedDate, serviceDuration) {
+            const dayOfWeek = new Date(selectedDate).getDay();
+            const businessHours = BUSINESS_HOURS[dayOfWeek];
             
-            if (step === 3) {
-                const nombre = document.getElementById('nombre').value;
-                const apellido = document.getElementById('apellido').value;
-                const telefono = document.getElementById('telefono').value;
+            if (!businessHours) return [];
+
+            const slots = [];
+            const addSlots = (start, end) => {
+                let current = parseTime(start);
+                const endTime = parseTime(end);
                 
-                if (!nombre || !apellido || !telefono) {
-                    showError('Todos los campos son obligatorios');
-                    return;
-                }
-            }
-
-            // Ocultar todos los pasos
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            
-            // Mostrar paso actual
-            document.getElementById(`step${step}`).classList.add('active');
-            
-            // Cargar contenido específico del paso
-            if (step === 3) {
-                loadServices();
-            } else if (step === 4) {
-                setupDatePicker();
-            }
-        }
-
-        // Cargar servicios
-        function loadServices() {
-            const grid = document.getElementById('serviceGrid');
-            grid.innerHTML = '';
-            
-            services.forEach(service => {
-                const card = document.createElement('div');
-                card.className = 'service-card';
-                card.onclick = () => selectService(service);
-                
-                card.innerHTML = `
-                    <div class="service-name">${service.name}</div>
-                    <div class="service-duration">${service.duration} minutos - $${service.price}</div>
-                `;
-                
-                grid.appendChild(card);
-            });
-        }
-
-        function selectService(service) {
-            selectedService = service;
-            
-            // Actualizar UI
-            document.querySelectorAll('.service-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.service-card').classList.add('selected');
-            
-            document.getElementById('serviceBtn').disabled = false;
-        }
-
-        // Configurar selector de fecha
-        function setupDatePicker() {
-            const fechaInput = document.getElementById('fecha');
-            const today = new Date();
-            const maxDate = new Date();
-            maxDate.setMonth(maxDate.getMonth() + 2);
-            
-            fechaInput.min = today.toISOString().split('T')[0];
-            fechaInput.max = maxDate.toISOString().split('T')[0];
-            
-            fechaInput.addEventListener('change', loadTimeSlots);
-        }
-
-        // Cargar horarios disponibles
-        async function loadTimeSlots() {
-            const fecha = document.getElementById('fecha').value;
-            if (!fecha || !selectedService) return;
-            
-            selectedDate = fecha;
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getAvailableSlots&date=${fecha}&duration=${selectedService.duration}`);
-                const slots = await response.json();
-                
-                const container = document.getElementById('timeSlots');
-                container.innerHTML = '';
-                
-                slots.forEach(slot => {
-                    const timeSlot = document.createElement('div');
-                    timeSlot.className = 'time-slot';
-                    timeSlot.textContent = slot.time;
-                    timeSlot.onclick = () => selectTimeSlot(slot.time, timeSlot);
-                    
-                    if (!slot.available) {
-                        timeSlot.classList.add('unavailable');
-                        timeSlot.onclick = null;
+                while (current + serviceDuration <= endTime) {
+                    const timeStr = formatTime(current);
+                    if (!isTimeSlotTaken(selectedDate, timeStr, serviceDuration)) {
+                        slots.push(timeStr);
                     }
-                    
-                    container.appendChild(timeSlot);
-                });
+                    current += 30; // Slots cada 30 minutos
+                }
+            };
+
+            // Agregar slots de la mañana
+            addSlots(businessHours.morning.start, businessHours.morning.end);
+            
+            // Agregar slots de la tarde
+            addSlots(businessHours.afternoon.start, businessHours.afternoon.end);
+
+            return slots;
+        }
+
+        function parseTime(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function isTimeSlotTaken(date, time, duration) {
+            const requestedStart = parseTime(time);
+            const requestedEnd = requestedStart + duration;
+
+            return existingAppointments.some(appointment => {
+                if (appointment.date !== date) return false;
                 
-            } catch (error) {
-                console.error('Error loading time slots:', error);
-                showError('Error al cargar horarios disponibles');
-            }
-        }
+                const existingStart = parseTime(appointment.time);
+                const existingEnd = existingStart + appointment.duration;
 
-        function selectTimeSlot(time, element) {
-            selectedTime = time;
-            
-            document.querySelectorAll('.time-slot').forEach(slot => {
-                slot.classList.remove('selected');
+                // Verificar si hay solapamiento
+                return (requestedStart < existingEnd && requestedEnd > existingStart);
             });
-            element.classList.add('selected');
-            
-            document.getElementById('confirmBtn').disabled = false;
         }
 
-        // Confirmar reserva
-        async function confirmReservation() {
-            if (!currentUser || !selectedService || !selectedDate || !selectedTime) {
-                showError('Faltan datos para completar la reserva');
+        function updateAvailableTimeSlots() {
+            const selectedDate = dateInput.value;
+            const selectedService = serviceSelect.value;
+            
+            if (!selectedDate || !selectedService) {
+                timeSelect.innerHTML = '<option value="">Primero selecciona servicio y fecha</option>';
+                timeSelect.disabled = true;
                 return;
             }
+
+            const serviceDuration = parseInt(serviceSelect.selectedOptions[0]?.dataset.duration) || 60;
+            const availableSlots = getAvailableTimeSlots(selectedDate, serviceDuration);
+
+            timeSelect.innerHTML = '';
             
-            showLoading(true);
-            
-            const reservationData = {
-                action: 'createReservation',
-                user: currentUser,
-                nombre: document.getElementById('nombre').value,
-                apellido: document.getElementById('apellido').value,
-                telefono: document.getElementById('telefono').value,
-                servicio: selectedService.name,
-                duracion: selectedService.duration,
-                fecha: selectedDate,
-                hora: selectedTime
-            };
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(reservationData)
+            if (availableSlots.length === 0) {
+                timeSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                timeSelect.disabled = true;
+                showMessage('❌ No hay horarios disponibles para esta fecha. Selecciona otra fecha.', 'error');
+            } else {
+                timeSelect.innerHTML = '<option value="">Selecciona un horario</option>';
+                availableSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelect.appendChild(option);
                 });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showConfirmation(result.reservation);
-                } else {
-                    showError(result.error || 'Error al crear la reserva');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showError('Error de conexión. Intenta nuevamente.');
-            } finally {
-                showLoading(false);
+                timeSelect.disabled = false;
             }
         }
 
-        function showConfirmation(reservation) {
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            
-            document.getElementById('reservationDetails').innerHTML = `
-                <p><strong>ID:</strong> ${reservation.id}</p>
-                <p><strong>Servicio:</strong> ${reservation.servicio}</p>
-                <p><strong>Fecha:</strong> ${reservation.fecha}</p>
-                <p><strong>Hora:</strong> ${reservation.hora}</p>
-                <p><strong>Cliente:</strong> ${reservation.nombre} ${reservation.apellido}</p>
-                <p><strong>Teléfono:</strong> ${reservation.telefono}</p>
-            `;
-            
-            document.getElementById('confirmation').classList.add('show');
+        // Cargar citas existentes desde Google Sheets
+        async function loadExistingAppointments() {
+            try {
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getAppointments`);
+                const data = await response.json();
+                existingAppointments = data.appointments || [];
+                updateAvailableTimeSlots();
+            } catch (error) {
+                console.log('No se pudieron cargar las citas existentes');
+                existingAppointments = [];
+            }
+        }
+        function generateVerificationCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
         }
 
-        function newReservation() {
-            // Reset everything
-            currentUser = null;
-            selectedService = null;
-            selectedDate = null;
-            selectedTime = null;
+        // Formatear número de teléfono
+        function formatPhoneNumber(phone) {
+            // Remover espacios y caracteres especiales
+            phone = phone.replace(/\D/g, '');
             
-            document.getElementById('confirmation').classList.remove('show');
-            document.getElementById('userInfo').classList.remove('show');
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById('step1').classList.add('active');
+            // Si empieza con 0, removerlo
+            if (phone.startsWith('0')) {
+                phone = phone.substring(1);
+            }
             
-            // Clear form
-            document.querySelectorAll('input').forEach(input => input.value = '');
-            document.getElementById('serviceBtn').disabled = true;
-            document.getElementById('confirmBtn').disabled = true;
+            // Agregar prefijo +593
+            return '+593' + phone;
         }
 
-        function showLoading(show) {
-            document.getElementById('loading').classList.toggle('show', show);
-        }
-
-        function showError(message) {
-            document.getElementById('errorMessage').textContent = message;
-            document.getElementById('error').classList.add('show');
+        // Mostrar mensaje de estado
+        function showMessage(message, type = 'info') {
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.innerHTML = message;
+            statusMessage.style.display = 'block';
+            
             setTimeout(() => {
-                document.getElementById('error').classList.remove('show');
+                statusMessage.style.display = 'none';
             }, 5000);
         }
 
-        // Inicializar la aplicación
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configurar fecha mínima
+        // Iniciar countdown
+        function startCountdown(seconds = 60) {
+            let timeLeft = seconds;
+            resendCodeBtn.disabled = true;
+            
+            countdownTimer = setInterval(() => {
+                countdown.textContent = `Reenviar en ${timeLeft}s`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(countdownTimer);
+                    countdown.textContent = '';
+                    resendCodeBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        // Enviar código por WhatsApp
+        async function sendWhatsAppCode(phoneNumber, code) {
+            const message = `🔐 Tu código de verificación para Grace Reserve es: ${code}\n\nNo compartas este código con nadie.`;
+            
+            try {
+                // Simular envío (aquí iría la integración real con Twilio/Meta)
+                console.log(`Enviando a ${phoneNumber}: ${message}`);
+                
+                // Para demostración, mostraremos el código en consola
+                console.log(`CÓDIGO DE VERIFICACIÓN: ${code}`);
+                showMessage(`📱 Código enviado a WhatsApp ${phoneNumber}`, 'success');
+                
+                return true;
+            } catch (error) {
+                console.error('Error enviando WhatsApp:', error);
+                showMessage('❌ Error enviando código. Inténtalo de nuevo.', 'error');
+                return false;
+            }
+        }
+
+        // Event Listeners para disponibilidad
+        serviceSelect.addEventListener('change', updateAvailableTimeSlots);
+        dateInput.addEventListener('change', () => {
+            const selectedDate = dateInput.value;
+            
+            // Verificar si es día laborable
+            if (selectedDate && !isBusinessDay(selectedDate)) {
+                showMessage('❌ Los domingos estamos cerrados. Selecciona otro día.', 'error');
+                dateInput.value = '';
+                return;
+            }
+            
+            updateAvailableTimeSlots();
+        });
+
+        // Event Listeners originales
+        sendCodeBtn.addEventListener('click', async () => {
+            const phone = whatsappInput.value.trim();
+            
+            if (!phone || phone.length < 9) {
+                showMessage('❌ Ingresa un número de WhatsApp válido', 'error');
+                whatsappInput.focus();
+                return;
+            }
+            
+            const formattedPhone = formatPhoneNumber(phone);
+            phoneDisplay.textContent = phone;
+            
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.innerHTML = '📱 Enviando...';
+            
+            verificationCode = generateVerificationCode();
+            const success = await sendWhatsAppCode(formattedPhone, verificationCode);
+            
+            if (success) {
+                verificationSection.classList.add('show');
+                startCountdown(60);
+                verificationCodeInput.focus();
+            }
+            
+            sendCodeBtn.disabled = false;
+            sendCodeBtn.innerHTML = '📱 Enviar Código de Verificación';
+        });
+
+        verifyCodeBtn.addEventListener('click', () => {
+            const enteredCode = verificationCodeInput.value.trim();
+            
+            if (!enteredCode) {
+                showMessage('❌ Ingresa el código de verificación', 'error');
+                return;
+            }
+            
+            if (enteredCode === verificationCode) {
+                isPhoneVerified = true;
+                submitBtn.disabled = false;
+                verificationSection.style.display = 'none';
+                sendCodeBtn.style.display = 'none';
+                showMessage('✅ WhatsApp verificado correctamente', 'success');
+                
+                // Mostrar número verificado
+                const verifiedBadge = document.createElement('div');
+                verifiedBadge.innerHTML = '✅ WhatsApp verificado';
+                verifiedBadge.style.color = '#28a745';
+                verifiedBadge.style.fontWeight = 'bold';
+                verifiedBadge.style.marginTop = '5px';
+                whatsappInput.parentNode.appendChild(verifiedBadge);
+                
+                whatsappInput.disabled = true;
+            } else {
+                showMessage('❌ Código incorrecto. Inténtalo de nuevo.', 'error');
+                verificationCodeInput.value = '';
+                verificationCodeInput.focus();
+            }
+        });
+
+        resendCodeBtn.addEventListener('click', async () => {
+            const phone = whatsappInput.value.trim();
+            const formattedPhone = formatPhoneNumber(phone);
+            
+            resendCodeBtn.disabled = true;
+            verificationCode = generateVerificationCode();
+            
+            const success = await sendWhatsAppCode(formattedPhone, verificationCode);
+            if (success) {
+                startCountdown(60);
+                showMessage('📱 Nuevo código enviado', 'info');
+            }
+        });
+
+        // Submit del formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!isPhoneVerified) {
+                showMessage('❌ Debes verificar tu WhatsApp primero', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Procesando reserva...';
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.whatsapp = formatPhoneNumber(data.whatsapp);
+            data.verified = 'true';
+            
+            try {
+                // Enviar a Google Apps Script
+                const response = await fetch(CONFIG.SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                showMessage('✅ ¡Reserva confirmada! Recibirás recordatorios por WhatsApp.', 'success');
+                
+                // Enviar mensaje de confirmación
+                await sendConfirmationMessage(data);
+                
+                // Limpiar formulario
+                form.reset();
+                isPhoneVerified = false;
+                submitBtn.disabled = true;
+                sendCodeBtn.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Error al procesar la reserva. Inténtalo de nuevo.', 'error');
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '💅 Confirmar Reserva';
+        });
+
+        // Enviar mensaje de confirmación
+        async function sendConfirmationMessage(data) {
+            const message = `✨ ¡Hola ${data.firstName}!
+
+Tu cita en Grace Reserve está confirmada:
+
+📅 Fecha: ${data.appointmentDate}
+🕐 Hora: ${data.appointmentTime}
+💅 Servicio: ${data.service}
+
+📍 Nos ubicamos en [TU DIRECCIÓN]
+
+Te enviaremos recordatorios automáticos.
+¡Nos vemos pronto! 💅✨`;
+
+            await sendWhatsAppCode(data.whatsapp, message);
+        }
+
+        // Configurar fecha mínima y cargar citas
+        document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha').min = today;
+            document.getElementById('appointmentDate').min = today;
+            
+            // Cargar citas existentes
+            loadExistingAppointments();
+        });
+
+        // Validación en tiempo real del WhatsApp
+        whatsappInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.startsWith('0')) {
+                value = value.substring(1);
+            }
+            
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            
+            e.target.value = value;
         });
     </script>
 </body>
